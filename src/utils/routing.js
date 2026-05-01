@@ -18,6 +18,7 @@ export function findRoute(startLocation, endLocation) {
     if (startIndex !== -1 && endIndex !== -1) {
       const stopsCount = Math.abs(endIndex - startIndex);
       const estTime = stopsCount * route.timeBetweenStops;
+      const estFare = route.baseFare + (stopsCount * route.farePerStop);
       
       allRoutes.push({
         type: 'direct',
@@ -28,6 +29,9 @@ export function findRoute(startLocation, endLocation) {
         stopsCount,
         totalTime: estTime, // use totalTime for consistent sorting
         estTime,
+        estFare,
+        firstBus: route.firstBus,
+        lastBus: route.lastBus,
         direction: startIndex < endIndex ? 'Forward' : 'Backward'
       });
     }
@@ -60,6 +64,8 @@ export function findRoute(startLocation, endLocation) {
         const transferStopOriginal = sRoute.stops[transIdx1];
         
         const totalTime = (stopsCount1 * sRoute.timeBetweenStops) + (stopsCount2 * eRoute.timeBetweenStops) + 10;
+        const estFare1 = sRoute.baseFare + (stopsCount1 * sRoute.farePerStop);
+        const estFare2 = eRoute.baseFare + (stopsCount2 * eRoute.farePerStop);
 
         // Prevent adding transfer routes if a direct route is already much faster
         // But for comprehensive options, let's add them anyway and sort.
@@ -70,16 +76,23 @@ export function findRoute(startLocation, endLocation) {
             routeName: sRoute.name,
             startStop: sRoute.stops[startIdx1],
             endStop: transferStopOriginal,
-            time: stopsCount1 * sRoute.timeBetweenStops
+            time: stopsCount1 * sRoute.timeBetweenStops,
+            fare: estFare1,
+            firstBus: sRoute.firstBus,
+            lastBus: sRoute.lastBus
           },
           leg2: {
             routeId: eRoute.id,
             routeName: eRoute.name,
             startStop: transferStopOriginal,
             endStop: eRoute.stops[endIdx2],
-            time: stopsCount2 * eRoute.timeBetweenStops
+            time: stopsCount2 * eRoute.timeBetweenStops,
+            fare: estFare2,
+            firstBus: eRoute.firstBus,
+            lastBus: eRoute.lastBus
           },
           totalTime,
+          totalFare: estFare1 + estFare2,
           transferStop: transferStopOriginal
         });
       }

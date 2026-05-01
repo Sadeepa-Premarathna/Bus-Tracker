@@ -354,3 +354,79 @@ body {
   .search-card { padding: 1.5rem; }
   .swap-wrapper { justify-content: center; margin: -1.5rem 0; }
 }
+
+/* Autocomplete Dropdown */
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-color);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 12px;
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+  list-style: none;
+  padding: 0.5rem 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-item {
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--accent-cyan);
+}
+
+/* GPS Button */
+.gps-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.gps-btn:hover {
+  color: #fff;
+  text-shadow: 0 0 5px var(--accent-cyan);
+}
+.gps-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Header UI */
+.header-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 0;
+}
+
+.lang-toggle {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+.lang-toggle option {
+  background: var(--bg-color);
+}

@@ -1,6 +1,12 @@
 "use client";
 import { useState } from 'react';
 import { findRoute } from '../utils/routing';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('../components/MapComponent'), {
+  ssr: false,
+  loading: () => <div style={{height: '400px', width: '100%', background: 'var(--glass-bg)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2rem', border: '1px solid var(--glass-border)'}}>Loading Map...</div>
+});
 
 export default function Home() {
   const [fromLocation, setFromLocation] = useState('');
@@ -73,57 +79,70 @@ export default function Home() {
             {result.error ? (
               <div className="error-msg">{result.error}</div>
             ) : (
-              <div className="timeline">
-                {result.routes[0].type === 'direct' ? (
-                  <>
-                    <div className="timeline-item">
-                      <div className="timeline-dot"></div>
-                      <div className="timeline-content">
-                        <div className="timeline-title">Board at {result.routes[0].startStop}</div>
-                        <div className="timeline-desc">
-                          <span className="bus-badge">{result.routes[0].routeId}</span> 
-                          Towards {result.routes[0].routeName.split(' - ')[1]} ({result.routes[0].estTime} mins)
-                        </div>
-                      </div>
+              <div className="routes-list">
+                <h3 className="section-title" style={{textAlign: 'left', marginBottom: '1rem'}}>Found {result.routes.length} Route Option{result.routes.length > 1 ? 's' : ''}</h3>
+                
+                <MapComponent result={result} />
+
+                <div style={{marginTop: '2rem'}}>
+                  {result.routes.map((route, index) => (
+                    <div key={index} className="route-option-card" style={{marginBottom: '2rem', padding: '1rem', background: 'var(--glass-bg)', borderRadius: '16px', border: '1px solid var(--glass-border)'}}>
+                    <h4 style={{marginBottom: '1rem', color: 'var(--accent-cyan)'}}>Option {index + 1} {route.type === 'direct' ? '(Direct)' : '(1 Transfer)'} - {route.totalTime} mins</h4>
+                    <div className="timeline">
+                      {route.type === 'direct' ? (
+                        <>
+                          <div className="timeline-item">
+                            <div className="timeline-dot"></div>
+                            <div className="timeline-content">
+                              <div className="timeline-title">Board at {route.startStop}</div>
+                              <div className="timeline-desc">
+                                <span className="bus-badge">{route.routeId}</span> 
+                                Towards {route.routeName.split(' - ')[1] || route.endStop} ({route.estTime} mins)
+                              </div>
+                            </div>
+                          </div>
+                          <div className="timeline-item">
+                            <div className="timeline-dot end"></div>
+                            <div className="timeline-content" style={{ border: '1px solid #2ed573' }}>
+                              <div className="timeline-title">Arrive at {route.endStop}</div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="timeline-item">
+                            <div className="timeline-dot"></div>
+                            <div className="timeline-content">
+                              <div className="timeline-title">Board at {route.leg1.startStop}</div>
+                              <div className="timeline-desc">
+                                <span className="bus-badge">{route.leg1.routeId}</span> 
+                                Towards {route.leg1.routeName.split(' - ')[1] || route.leg1.endStop} ({route.leg1.time} mins)
+                              </div>
+                            </div>
+                          </div>
+                          <div className="timeline-item">
+                            <div className="timeline-dot transfer"></div>
+                            <div className="timeline-content" style={{ borderColor: 'var(--accent-purple)' }}>
+                              <div className="timeline-title">Transfer at {route.transferStop}</div>
+                              <div className="timeline-desc">
+                                <span className="bus-badge">{route.leg2.routeId}</span> 
+                                Board bus towards {route.leg2.routeName.split(' - ')[1] || route.leg2.endStop} ({route.leg2.time} mins)
+                              </div>
+                            </div>
+                          </div>
+                          <div className="timeline-item">
+                            <div className="timeline-dot end"></div>
+                            <div className="timeline-content" style={{ border: '1px solid #2ed573' }}>
+                              <div className="timeline-title">Arrive at {route.leg2.endStop}</div>
+                              <div className="timeline-desc">Total Estimated Time: {route.totalTime} mins</div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div className="timeline-item">
-                      <div className="timeline-dot end"></div>
-                      <div className="timeline-content" style={{ border: '1px solid #2ed573' }}>
-                        <div className="timeline-title">Arrive at {result.routes[0].endStop}</div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="timeline-item">
-                      <div className="timeline-dot"></div>
-                      <div className="timeline-content">
-                        <div className="timeline-title">Board at {result.routes[0].leg1.startStop}</div>
-                        <div className="timeline-desc">
-                          <span className="bus-badge">{result.routes[0].leg1.routeId}</span> 
-                          Towards {result.routes[0].leg1.routeName.split(' - ')[1]} ({result.routes[0].leg1.time} mins)
-                        </div>
-                      </div>
-                    </div>
-                    <div className="timeline-item">
-                      <div className="timeline-dot transfer"></div>
-                      <div className="timeline-content" style={{ borderColor: 'var(--accent-purple)' }}>
-                        <div className="timeline-title">Transfer at {result.routes[0].transferStop}</div>
-                        <div className="timeline-desc">
-                          <span className="bus-badge">{result.routes[0].leg2.routeId}</span> 
-                          Board bus towards {result.routes[0].leg2.routeName.split(' - ')[1]} ({result.routes[0].leg2.time} mins)
-                        </div>
-                      </div>
-                    </div>
-                    <div className="timeline-item">
-                      <div className="timeline-dot end"></div>
-                      <div className="timeline-content" style={{ border: '1px solid #2ed573' }}>
-                        <div className="timeline-title">Arrive at {result.routes[0].leg2.endStop}</div>
-                        <div className="timeline-desc">Total Estimated Time: {result.routes[0].totalTime} mins</div>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  </div>
+                ))}
+                </div>
               </div>
             )}
           </div>
